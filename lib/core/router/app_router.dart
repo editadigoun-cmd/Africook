@@ -90,14 +90,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
       GoRoute(
+        path: '/recipe/create',
+        builder: (_, __) => const RecipeCreateScreen(),
+      ),
+      GoRoute(
         path: '/recipe/:id',
         builder: (_, state) => RecipeDetailScreen(
           recipeId: state.pathParameters['id']!,
         ),
-      ),
-      GoRoute(
-        path: '/recipe/create',
-        builder: (_, __) => const RecipeCreateScreen(),
       ),
       GoRoute(
         path: '/restaurants',
