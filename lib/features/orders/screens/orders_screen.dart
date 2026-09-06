@@ -45,7 +45,7 @@ class OrdersScreen extends ConsumerWidget {
                     title: 'Ingrédients',
                     subtitle: 'Acheter en boutique',
                     color: AppColors.green,
-                    onTap: () {},
+                    onTap: () => context.push('/boutique'),
                   ),
                 ),
               ],

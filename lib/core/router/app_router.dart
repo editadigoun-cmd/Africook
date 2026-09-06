@@ -22,6 +22,8 @@ import '../../features/shopping_list/screens/shopping_list_screen.dart';
 import '../../features/notifications/screens/notifications_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
 import '../../features/profile/screens/edit_profile_screen.dart';
+import '../../features/boutique/screens/boutique_screen.dart';
+import '../../features/boutique/screens/store_detail_screen.dart';
 import '../../shared/widgets/main_scaffold.dart';
 import '../services/supabase_service.dart';
 
@@ -140,6 +142,16 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/profile/edit',
         builder: (_, __) => const EditProfileScreen(),
+      ),
+      GoRoute(
+        path: '/boutique',
+        builder: (_, __) => const BoutiqueScreen(),
+      ),
+      GoRoute(
+        path: '/boutique/:id',
+        builder: (_, state) => StoreDetailScreen(
+          store: {'id': state.pathParameters['id']!},
+        ),
       ),
     ],
   );
