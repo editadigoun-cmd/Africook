@@ -1,0 +1,29 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Africook — Flutter (Android)",
+      "runtimeExecutable": "flutter",
+      "runtimeArgs": ["run", "-d", "android", "--debug"],
+      "port": null
+    },
+    {
+      "name": "Africook — Flutter (iOS)",
+      "runtimeExecutable": "flutter",
+      "runtimeArgs": ["run", "-d", "ios", "--debug"],
+      "port": null
+    },
+    {
+      "name": "Africook — Flutter (Chrome / Web preview)",
+      "runtimeExecutable": "flutter",
+      "runtimeArgs": ["run", "-d", "chrome", "--web-port", "3000"],
+      "port": 3000
+    },
+    {
+      "name": "Africook — Flutter build APK",
+      "runtimeExecutable": "flutter",
+      "runtimeArgs": ["build", "apk", "--release"],
+      "port": null
+    }
+  ]
+}

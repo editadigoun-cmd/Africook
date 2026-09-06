@@ -1,0 +1,100 @@
+name: africook
+description: Assistant intelligent de cuisine africaine
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # State management
+  flutter_riverpod: ^2.5.1
+  riverpod_annotation: ^2.3.5
+
+  # Navigation
+  go_router: ^13.2.0
+
+  # Supabase
+  supabase_flutter: ^2.5.6
+
+  # HTTP
+  dio: ^5.4.3
+
+  # Storage
+  shared_preferences: ^2.2.3
+  flutter_secure_storage: ^9.0.0
+
+  # UI
+  cached_network_image: ^3.3.1
+  shimmer: ^3.0.0
+  flutter_animate: ^4.5.0
+  lottie: ^3.1.0
+  smooth_page_indicator: ^1.1.0
+
+  # Video
+  video_player: ^2.8.6
+  chewie: ^1.7.4
+
+  # Image
+  image_picker: ^1.0.7
+
+  # Firebase / Notifications
+  firebase_core: ^3.0.0
+  firebase_messaging: ^15.0.0
+  flutter_local_notifications: ^17.1.2
+
+  # Payment (WebView for FedaPay)
+  webview_flutter: ^4.7.0
+
+  # Internationalisation
+  intl: ^0.20.2
+
+  # Icons / SVG
+  flutter_svg: ^2.0.10
+
+  # Messaging helpers
+  timeago: ^3.6.1
+
+  # Env
+  flutter_dotenv: ^5.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  build_runner: ^2.4.9
+  riverpod_generator: ^2.4.0
+  json_serializable: ^6.8.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - .env
+    - assets/images/
+    - assets/icons/
+    - assets/images/afcook icone.png
+    - assets/images/afcook.jpg
+    - assets/images/afcook.png
+    - assets/images/Boeuf Bourguignon.jpeg
+    - assets/images/ratatouille.jpeg
+    - assets/images/crepes.jpeg
+
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Regular.ttf
+        - asset: assets/fonts/Poppins-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Poppins-SemiBold.ttf
+          weight: 600
+    - family: Nunito
+      fonts:
+        - asset: assets/fonts/Nunito-Regular.ttf
+        - asset: assets/fonts/Nunito-Bold.ttf
+          weight: 700
