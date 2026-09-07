@@ -292,7 +292,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
                       Expanded(
                         child: PrimaryButton(
                           label: '🛒 Commander',
-                          onPressed: () => context.push('/restaurants'),
+                          onPressed: () => context.push('/restaurants?recipeId=${recipe.id}'),
                         ),
                       ),
                       const SizedBox(width: 12),

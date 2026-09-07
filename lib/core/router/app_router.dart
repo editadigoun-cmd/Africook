@@ -101,7 +101,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/restaurants',
-        builder: (_, __) => const RestaurantsScreen(),
+        builder: (_, state) => RestaurantsScreen(
+          recipeId: state.uri.queryParameters['recipeId'],
+        ),
       ),
       GoRoute(
         path: '/restaurant/:id',

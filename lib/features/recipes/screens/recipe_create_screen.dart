@@ -40,9 +40,10 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
   final _ingQtyCtrl = TextEditingController();
   final _ingUnitCtrl = TextEditingController();
 
-  // Step 3 - Steps
+  // Step 3 - Steps + video
   final List<Map<String, String>> _steps = [];
   final _stepCtrl = TextEditingController();
+  final _videoUrlCtrl = TextEditingController();
 
   @override
   void dispose() {
@@ -52,6 +53,7 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
     _ingQtyCtrl.dispose();
     _ingUnitCtrl.dispose();
     _stepCtrl.dispose();
+    _videoUrlCtrl.dispose();
     super.dispose();
   }
 
@@ -87,6 +89,8 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
         'budget_range': _budget,
         'is_community': true,
         'health_tags': _healthTags,
+        if (_videoUrlCtrl.text.trim().isNotEmpty)
+          'video_url': _videoUrlCtrl.text.trim(),
       });
 
       if (_ingredients.isNotEmpty) {
@@ -396,7 +400,7 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Étape 3 : Instructions',
+                const Text('Étape 3 : Instructions & Vidéo',
                     style: TextStyle(
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.w700,
@@ -432,6 +436,26 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
                       ),
                     ),
                   ],
+                ),
+                const SizedBox(height: 20),
+                const Divider(),
+                const SizedBox(height: 12),
+                const Text(
+                  '🎥 Vidéo (optionnel)',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _videoUrlCtrl,
+                  decoration: const InputDecoration(
+                    hintText: 'URL de la vidéo (YouTube, TikTok...)',
+                    prefixIcon: Icon(Icons.videocam_outlined),
+                  ),
+                  keyboardType: TextInputType.url,
                 ),
               ],
             ),

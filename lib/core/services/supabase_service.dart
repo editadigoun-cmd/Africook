@@ -341,6 +341,22 @@ class SupabaseService {
     return query.order('rating', ascending: false);
   }
 
+  Future<List<Map<String, dynamic>>> getRestaurantsForRecipe(
+      String recipeId) async {
+    final dishes = await client
+        .from('restaurant_dishes')
+        .select('restaurant_id')
+        .eq('recipe_id', recipeId)
+        .eq('is_available', true);
+    final ids = dishes.map((d) => d['restaurant_id'] as String).toSet().toList();
+    if (ids.isEmpty) return [];
+    return client
+        .from('restaurants')
+        .select()
+        .inFilter('id', ids)
+        .order('rating', ascending: false);
+  }
+
   Future<List<Map<String, dynamic>>> getRestaurantDishes(
           String restaurantId) =>
       client

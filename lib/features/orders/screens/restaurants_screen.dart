@@ -11,23 +11,39 @@ final restaurantsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) {
   return ref.read(supabaseServiceProvider).getRestaurants();
 });
 
+final restaurantsByRecipeProvider =
+    FutureProvider.family<List<Map<String, dynamic>>, String>((ref, recipeId) {
+  return ref.read(supabaseServiceProvider).getRestaurantsForRecipe(recipeId);
+});
+
 class RestaurantsScreen extends ConsumerWidget {
-  const RestaurantsScreen({super.key});
+  final String? recipeId;
+  const RestaurantsScreen({super.key, this.recipeId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final restAsync = ref.watch(restaurantsProvider);
+    final restAsync = recipeId != null
+        ? ref.watch(restaurantsByRecipeProvider(recipeId!))
+        : ref.watch(restaurantsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Restaurants partenaires')),
+      appBar: AppBar(
+        title: Text(recipeId != null
+            ? 'Où commander ce plat ?'
+            : 'Restaurants partenaires'),
+      ),
       body: restAsync.when(
         loading: () =>
             const Center(child: CircularProgressIndicator(color: AppColors.primary)),
         error: (e, _) => Center(child: Text('Erreur : $e')),
         data: (restaurants) => restaurants.isEmpty
-            ? const EmptyState(
-                title: 'Aucun restaurant disponible',
-                subtitle: 'Les restaurants partenaires arrivent bientôt !',
+            ? EmptyState(
+                title: recipeId != null
+                    ? 'Aucun restaurant ne propose ce plat'
+                    : 'Aucun restaurant disponible',
+                subtitle: recipeId != null
+                    ? 'Revenez bientôt, nos partenaires s\'agrandissent !'
+                    : 'Les restaurants partenaires arrivent bientôt !',
                 icon: Icons.restaurant_outlined,
               )
             : ListView.builder(
