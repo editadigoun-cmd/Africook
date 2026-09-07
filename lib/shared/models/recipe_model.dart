@@ -71,7 +71,9 @@ class RecipeModel {
         isAiGenerated: json['is_ai_generated'] as bool? ?? false,
         isCommunity: json['is_community'] as bool? ?? false,
         isPublished: json['is_published'] as bool? ?? true,
-        healthTags: (json['health_tags'] as List?)?.cast<String>() ?? [],
+        healthTags: json['health_tags'] != null
+            ? List<String>.from(json['health_tags'] as Iterable)
+            : [],
         averageRating: (json['average_rating'] as num?)?.toDouble() ?? 0,
         ratingsCount: json['ratings_count'] as int? ?? 0,
         viewsCount: json['views_count'] as int? ?? 0,

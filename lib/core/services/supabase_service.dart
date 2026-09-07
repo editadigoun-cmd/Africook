@@ -83,7 +83,7 @@ class SupabaseService {
         .order(sortBy, ascending: false)
         .range(offset, offset + limit - 1);
 
-    return (data as List)
+    return List<dynamic>.from(data as Iterable)
         .map((e) => RecipeModel.fromJson(e as Map<String, dynamic>))
         .toList();
   }
@@ -122,7 +122,7 @@ class SupabaseService {
         .from('favorites')
         .select('recipe_id')
         .eq('user_id', userId);
-    return (data as List).map((e) => e['recipe_id'] as String).toList();
+    return List<dynamic>.from(data as Iterable).map((e) => e['recipe_id'] as String).toList();
   }
 
   Future<List<RecipeModel>> getFavorites(String userId) async {
@@ -130,7 +130,7 @@ class SupabaseService {
       recipe_id,
       recipes!recipe_id(*, users!author_id(id, full_name, avatar_url))
     ''').eq('user_id', userId).order('created_at', ascending: false);
-    return (data as List)
+    return List<dynamic>.from(data as Iterable)
         .map((e) => RecipeModel.fromJson(e['recipes'] as Map<String, dynamic>))
         .toList();
   }
@@ -169,7 +169,7 @@ class SupabaseService {
         .select()
         .eq('user_id', userId)
         .order('category');
-    return (data as List).cast<Map<String, dynamic>>();
+    return List<Map<String, dynamic>>.from(data as Iterable);
   }
 
   Future<void> addShoppingItem(Map<String, dynamic> item) =>
@@ -219,7 +219,7 @@ class SupabaseService {
         .or('user_a_id.eq.$userId,user_b_id.eq.$userId')
         .order('last_message_at', ascending: false);
 
-    return (data as List)
+    return List<dynamic>.from(data as Iterable)
         .map((e) => ConversationModel.fromJson(e as Map<String, dynamic>, userId))
         .toList();
   }
@@ -230,7 +230,7 @@ class SupabaseService {
         .select()
         .eq('conversation_id', conversationId)
         .order('created_at', ascending: true);
-    return (data as List)
+    return List<dynamic>.from(data as Iterable)
         .map((e) => MessageModel.fromJson(e as Map<String, dynamic>))
         .toList();
   }
@@ -281,7 +281,7 @@ class SupabaseService {
         .eq('recipe_id', recipeId)
         .isFilter('parent_id', null)
         .order('created_at', ascending: false);
-    return (data as List).cast<Map<String, dynamic>>();
+    return List<Map<String, dynamic>>.from(data as Iterable);
   }
 
   Future<void> addComment(
@@ -327,7 +327,7 @@ class SupabaseService {
         .select('*, order_items(*)')
         .eq('user_id', userId)
         .order('created_at', ascending: false);
-    return (data as List)
+    return List<dynamic>.from(data as Iterable)
         .map((e) => OrderModel.fromJson(e as Map<String, dynamic>))
         .toList();
   }
@@ -348,29 +348,29 @@ class SupabaseService {
   Future<List<Map<String, dynamic>>> getRestaurants({String? city}) async {
     var query = client.from('restaurants').select();
     if (city != null) query = query.eq('city', city);
-    return ((await query.order('rating', ascending: false)) as List)
-        .cast<Map<String, dynamic>>();
+    final result = await query.order('rating', ascending: false);
+    return List<Map<String, dynamic>>.from(result as Iterable);
   }
 
   Future<List<Map<String, dynamic>>> getRestaurantDishes(
-          String restaurantId) async =>
-      ((await client
-                  .from('restaurant_dishes')
-                  .select('*, recipes!recipe_id(*)')
-                  .eq('restaurant_id', restaurantId)
-                  .eq('is_available', true)) as List)
-          .cast<Map<String, dynamic>>();
+      String restaurantId) async {
+    final data = await client
+        .from('restaurant_dishes')
+        .select()
+        .eq('restaurant_id', restaurantId)
+        .eq('is_available', true);
+    return List<Map<String, dynamic>>.from(data as Iterable);
+  }
 
   // ─── NOTIFICATIONS ──────────────────────────────────────
 
   Future<List<Map<String, dynamic>>> getNotifications(String userId) async =>
-      ((await client
+      List<Map<String, dynamic>>.from((await client
                   .from('notifications')
                   .select()
                   .eq('user_id', userId)
                   .order('created_at', ascending: false)
-                  .limit(50)) as List)
-          .cast<Map<String, dynamic>>();
+                  .limit(50)) as Iterable);
 
   Future<void> markNotificationsRead(String userId) =>
       client.from('notifications').update({'is_read': true}).eq('user_id', userId);
@@ -391,11 +391,10 @@ class SupabaseService {
       });
 
   Future<List<Map<String, dynamic>>> getAiHistory(String userId) async =>
-      ((await client
+      List<Map<String, dynamic>>.from((await client
                   .from('ai_generated_recipes')
                   .select()
                   .eq('user_id', userId)
                   .order('created_at', ascending: false)
-                  .limit(20)) as List)
-          .cast<Map<String, dynamic>>();
+                  .limit(20)) as Iterable);
 }

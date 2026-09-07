@@ -54,9 +54,9 @@ class RestaurantsScreen extends ConsumerWidget {
                           ClipRRect(
                             borderRadius: const BorderRadius.vertical(
                                 top: Radius.circular(16)),
-                            child: r['cover_url'] != null
+                            child: r['image_url'] != null
                                 ? CachedNetworkImage(
-                                    imageUrl: r['cover_url'],
+                                    imageUrl: r['image_url'],
                                     height: 140,
                                     width: double.infinity,
                                     fit: BoxFit.cover,

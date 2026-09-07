@@ -68,7 +68,9 @@ class RestaurantDetailScreen extends ConsumerWidget {
           itemCount: dishes.length,
           itemBuilder: (_, i) {
             final dish = dishes[i];
-            final recipe = dish['recipes'] as Map<String, dynamic>?;
+            final dishName = dish['name'] as String? ?? 'Plat';
+            final dishImage = dish['image_url'] as String?;
+            final dishPrice = (dish['price'] as num?)?.toDouble() ?? 0;
             return Container(
               margin: const EdgeInsets.only(bottom: 12),
               padding: const EdgeInsets.all(14),
@@ -86,9 +88,9 @@ class RestaurantDetailScreen extends ConsumerWidget {
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(10),
-                    child: recipe?['image_url'] != null
+                    child: dishImage != null
                         ? Image.network(
-                            recipe!['image_url'],
+                            dishImage,
                             width: 70,
                             height: 70,
                             fit: BoxFit.cover,
@@ -107,7 +109,7 @@ class RestaurantDetailScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          recipe?['title'] ?? 'Plat',
+                          dishName,
                           style: const TextStyle(
                             fontFamily: 'Poppins',
                             fontWeight: FontWeight.w600,
@@ -116,7 +118,7 @@ class RestaurantDetailScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          '${dish['price']} ${dish['currency'] ?? 'XOF'}',
+                          '${dishPrice.toInt()} XOF',
                           style: const TextStyle(
                             fontFamily: 'Poppins',
                             fontWeight: FontWeight.w700,
@@ -130,10 +132,10 @@ class RestaurantDetailScreen extends ConsumerWidget {
                   GestureDetector(
                     onTap: () {
                       ref.read(cartProvider.notifier).addItem(CartItem(
-                            id: dish['id'],
-                            name: recipe?['title'] ?? 'Plat',
-                            imageUrl: recipe?['image_url'],
-                            price: (dish['price'] as num).toDouble(),
+                            id: dish['id'] as String,
+                            name: dishName,
+                            imageUrl: dishImage,
+                            price: dishPrice,
                             type: 'dish',
                           ));
                       ScaffoldMessenger.of(context).showSnackBar(
