@@ -206,6 +206,11 @@ class ProfileScreen extends ConsumerWidget {
                                   fontFamily: 'Nunito',
                                   fontSize: 12)),
                         ),
+                        _MenuItem(
+                          icon: Icons.wifi_off,
+                          label: 'Mode hors-ligne',
+                          onTap: () => context.push('/offline'),
+                        ),
                       ],
                     ),
 

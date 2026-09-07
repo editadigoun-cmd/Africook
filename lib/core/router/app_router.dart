@@ -23,6 +23,7 @@ import '../../features/notifications/screens/notifications_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
 import '../../features/profile/screens/edit_profile_screen.dart';
 import '../../features/profile/screens/history_screen.dart';
+import '../../features/profile/screens/offline_screen.dart';
 import '../../features/boutique/screens/boutique_screen.dart';
 import '../../features/boutique/screens/store_detail_screen.dart';
 import '../../shared/widgets/main_scaffold.dart';
@@ -149,6 +150,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/history',
         builder: (_, __) => const HistoryScreen(),
+      ),
+      GoRoute(
+        path: '/offline',
+        builder: (_, __) => const OfflineScreen(),
       ),
       GoRoute(
         path: '/boutique',

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/services/supabase_service.dart';
+import '../../../core/services/recipe_cache_service.dart';
 import '../../../shared/models/recipe_model.dart';
 import '../../../shared/providers/auth_provider.dart';
 import '../../../shared/widgets/health_badge.dart';
@@ -21,8 +22,15 @@ String _difficultyLabel(String? v) {
 }
 
 final recipeDetailProvider =
-    FutureProvider.family<RecipeModel?, String>((ref, id) {
-  return ref.read(supabaseServiceProvider).getRecipe(id);
+    FutureProvider.family<RecipeModel?, String>((ref, id) async {
+  final cache = RecipeCacheService();
+  try {
+    final recipe = await ref.read(supabaseServiceProvider).getRecipe(id);
+    if (recipe != null) await cache.saveRecipe(recipe);
+    return recipe;
+  } catch (_) {
+    return cache.getRecipe(id);
+  }
 });
 
 class RecipeDetailScreen extends ConsumerStatefulWidget {
