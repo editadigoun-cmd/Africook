@@ -181,6 +181,31 @@ class SupabaseService {
         .toList();
   }
 
+  Future<List<Map<String, dynamic>>> getMealPlan(String userId, DateTime weekStart) async {
+    final end = weekStart.add(const Duration(days: 6));
+    final data = await client
+        .from('meal_plans')
+        .select('*, recipes(id, title, image_url, prep_time_minutes, cook_time_minutes, difficulty, average_rating)')
+        .eq('user_id', userId)
+        .gte('plan_date', weekStart.toIso8601String().substring(0, 10))
+        .lte('plan_date', end.toIso8601String().substring(0, 10))
+        .order('plan_date');
+    return data;
+  }
+
+  Future<void> addMealPlan(String userId, String recipeId, DateTime date, String mealType) async {
+    await client.from('meal_plans').upsert({
+      'user_id': userId,
+      'recipe_id': recipeId,
+      'plan_date': date.toIso8601String().substring(0, 10),
+      'meal_type': mealType,
+    }, onConflict: 'user_id,plan_date,meal_type');
+  }
+
+  Future<void> deleteMealPlan(String id) async {
+    await client.from('meal_plans').delete().eq('id', id);
+  }
+
   Future<List<Map<String, dynamic>>> getShoppingList(String userId) async {
     final data = await client
         .from('shopping_list_items')

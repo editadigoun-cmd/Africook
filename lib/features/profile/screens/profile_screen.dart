@@ -169,6 +169,11 @@ class ProfileScreen extends ConsumerWidget {
                           onTap: () => context.push('/history'),
                         ),
                         _MenuItem(
+                          icon: Icons.calendar_month_outlined,
+                          label: 'Planificateur de repas',
+                          onTap: () => context.push('/meal-planner'),
+                        ),
+                        _MenuItem(
                           icon: Icons.shopping_cart_outlined,
                           label: 'Liste de courses',
                           onTap: () => context.push('/shopping-list'),
