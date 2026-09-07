@@ -10,6 +10,15 @@ import '../../../shared/widgets/health_badge.dart';
 import '../../../shared/widgets/primary_button.dart';
 import '../../../shared/widgets/skeleton_loader.dart';
 
+String _difficultyLabel(String? v) {
+  switch (v) {
+    case 'easy': return 'Facile';
+    case 'medium': return 'Moyen';
+    case 'hard': return 'Difficile';
+    default: return v ?? '-';
+  }
+}
+
 final recipeDetailProvider =
     FutureProvider.family<RecipeModel?, String>((ref, id) {
   return ref.read(supabaseServiceProvider).getRecipe(id);
@@ -252,7 +261,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
                       _InfoChip(
                           icon: Icons.signal_cellular_alt_rounded,
                           label: 'Niveau',
-                          value: recipe.difficulty ?? '-'),
+                          value: _difficultyLabel(recipe.difficulty)),
                       _InfoChip(
                           icon: Icons.people_rounded,
                           label: 'Portions',

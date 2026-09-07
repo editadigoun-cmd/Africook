@@ -240,9 +240,11 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
           DropdownButtonFormField<String>(
             value: _difficulty,
             decoration: const InputDecoration(labelText: 'Difficulté'),
-            items: ['Facile', 'Moyen', 'Difficile']
-                .map((d) => DropdownMenuItem(value: d, child: Text(d)))
-                .toList(),
+            items: const [
+              DropdownMenuItem(value: 'easy', child: Text('Facile')),
+              DropdownMenuItem(value: 'medium', child: Text('Moyen')),
+              DropdownMenuItem(value: 'hard', child: Text('Difficile')),
+            ],
             onChanged: (v) => setState(() => _difficulty = v!),
           ),
           const SizedBox(height: 14),

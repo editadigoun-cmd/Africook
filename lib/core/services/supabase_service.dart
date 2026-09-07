@@ -78,6 +78,16 @@ class SupabaseService {
     if (difficulty != null) {
       query = query.eq('difficulty', difficulty);
     }
+    if (categorySlug != null) {
+      final catResult = await client
+          .from('categories')
+          .select('id')
+          .eq('slug', categorySlug)
+          .maybeSingle();
+      if (catResult != null) {
+        query = query.eq('category_id', catResult['id'] as int);
+      }
+    }
 
     final data = await query
         .order(sortBy, ascending: false)

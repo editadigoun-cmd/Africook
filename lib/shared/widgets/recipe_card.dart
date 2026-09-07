@@ -242,16 +242,24 @@ class _DifficultyBadge extends StatelessWidget {
   final String difficulty;
   const _DifficultyBadge({required this.difficulty});
 
+  String get _label {
+    switch (difficulty) {
+      case 'easy': return 'Facile';
+      case 'medium': return 'Moyen';
+      case 'hard': return 'Difficile';
+      default: return difficulty;
+    }
+  }
+
   Color get _color {
     switch (difficulty) {
-      case 'Facile':
-        return AppColors.green;
-      case 'Moyen':
-        return AppColors.yellow;
-      case 'Difficile':
-        return AppColors.error;
-      default:
-        return AppColors.textLight;
+      case 'easy': return AppColors.green;
+      case 'medium': return AppColors.yellow;
+      case 'hard': return AppColors.error;
+      case 'Facile': return AppColors.green;
+      case 'Moyen': return AppColors.yellow;
+      case 'Difficile': return AppColors.error;
+      default: return AppColors.textLight;
     }
   }
 
@@ -263,7 +271,7 @@ class _DifficultyBadge extends StatelessWidget {
           borderRadius: BorderRadius.circular(4),
         ),
         child: Text(
-          difficulty,
+          _label,
           style: TextStyle(
             color: _color,
             fontSize: 10,

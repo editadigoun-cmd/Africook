@@ -15,13 +15,24 @@ final _selectedCategoryProvider = StateProvider<String?>((ref) => null);
 final _difficultyProvider = StateProvider<String?>((ref) => null);
 final _sortProvider = StateProvider<String>((ref) => 'created_at');
 
+String _difficultyLabel(String? v) {
+  switch (v) {
+    case 'easy': return 'Facile';
+    case 'medium': return 'Moyen';
+    case 'hard': return 'Difficile';
+    default: return v ?? '';
+  }
+}
+
 final recipesListProvider = FutureProvider<List<RecipeModel>>((ref) {
   final search = ref.watch(_searchProvider);
   final difficulty = ref.watch(_difficultyProvider);
+  final category = ref.watch(_selectedCategoryProvider);
   final sort = ref.watch(_sortProvider);
   return ref.read(supabaseServiceProvider).getRecipes(
         search: search.isEmpty ? null : search,
         difficulty: difficulty,
+        categorySlug: category,
         sortBy: sort,
         limit: 40,
       );
@@ -138,10 +149,9 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
                   value: selectedDifficulty,
                   items: const [
                     DropdownMenuItem(value: null, child: Text('Difficulté')),
-                    DropdownMenuItem(value: 'Facile', child: Text('Facile')),
-                    DropdownMenuItem(value: 'Moyen', child: Text('Moyen')),
-                    DropdownMenuItem(
-                        value: 'Difficile', child: Text('Difficile')),
+                    DropdownMenuItem(value: 'easy', child: Text('Facile')),
+                    DropdownMenuItem(value: 'medium', child: Text('Moyen')),
+                    DropdownMenuItem(value: 'hard', child: Text('Difficile')),
                   ],
                   onChanged: (v) =>
                       ref.read(_difficultyProvider.notifier).state = v,
