@@ -482,4 +482,68 @@ class SupabaseService {
           .eq('user_id', userId)
           .order('created_at', ascending: false)
           .limit(20);
+
+  Future<Map<String, dynamic>?> getActiveChallenge() async {
+    final rows = await client
+        .from('cooking_challenges')
+        .select()
+        .eq('is_active', true)
+        .order('created_at', ascending: false)
+        .limit(1);
+    if (rows.isEmpty) return null;
+    return rows.first as Map<String, dynamic>;
+  }
+
+  Future<List<Map<String, dynamic>>> getChallengeSubmissions(
+      String challengeId) async {
+    return client
+        .from('challenge_submissions')
+        .select('*, users(full_name, avatar_url)')
+        .eq('challenge_id', challengeId)
+        .order('votes_count', ascending: false);
+  }
+
+  Future<void> submitChallenge({
+    required String challengeId,
+    required String userId,
+    required String imageUrl,
+    String? description,
+  }) =>
+      client.from('challenge_submissions').insert({
+        'challenge_id': challengeId,
+        'user_id': userId,
+        'image_url': imageUrl,
+        'description': description,
+      });
+
+  Future<bool> hasVotedSubmission(
+      String submissionId, String userId) async {
+    final rows = await client
+        .from('challenge_votes')
+        .select('id')
+        .eq('submission_id', submissionId)
+        .eq('user_id', userId)
+        .limit(1);
+    return rows.isNotEmpty;
+  }
+
+  Future<void> voteSubmission(
+      String submissionId, String userId, bool vote) async {
+    if (vote) {
+      await client.from('challenge_votes').insert({
+        'submission_id': submissionId,
+        'user_id': userId,
+      });
+      await client.rpc('increment_challenge_votes',
+          params: {'submission_id': submissionId});
+    } else {
+      await client
+          .from('challenge_votes')
+          .delete()
+          .eq('submission_id', submissionId)
+          .eq('user_id', userId);
+      await client.rpc('decrement_challenge_votes',
+          params: {'submission_id': submissionId});
+    }
+  }
 }

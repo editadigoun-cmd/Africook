@@ -28,6 +28,7 @@ import '../../features/profile/screens/offline_screen.dart';
 import '../../features/meal_planner/screens/meal_planner_screen.dart';
 import '../../features/boutique/screens/boutique_screen.dart';
 import '../../features/boutique/screens/store_detail_screen.dart';
+import '../../features/challenges/screens/challenge_screen.dart';
 import '../../shared/widgets/main_scaffold.dart';
 import '../services/supabase_service.dart';
 
@@ -86,6 +87,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/ingredient-scanner',
             builder: (_, __) => const IngredientScannerScreen(),
+          ),
+          GoRoute(
+            path: '/challenge',
+            builder: (_, __) => const ChallengeScreen(),
           ),
           GoRoute(
             path: '/orders',

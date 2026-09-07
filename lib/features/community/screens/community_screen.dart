@@ -48,6 +48,7 @@ class CommunityScreen extends ConsumerWidget {
         length: 3,
         child: Column(
           children: [
+            _ChallengeBanner(),
             const TabBar(
               indicatorColor: AppColors.primary,
               labelColor: AppColors.primary,
@@ -364,4 +365,44 @@ class _EmptyTab extends StatelessWidget {
           ],
         ),
       );
+}
+
+class _ChallengeBanner extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.push('/challenge'),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF1A1A2E), Color(0xFF374151)],
+          ),
+        ),
+        child: Row(
+          children: [
+            const Text('🏆', style: TextStyle(fontSize: 22)),
+            const SizedBox(width: 10),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Défi de la semaine',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13)),
+                  Text('Participez et votez pour le meilleur plat !',
+                      style: TextStyle(color: Colors.white70, fontSize: 11)),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_forward_ios, color: Colors.white54, size: 14),
+          ],
+        ),
+      ),
+    );
+  }
 }
