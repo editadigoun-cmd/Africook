@@ -11,6 +11,7 @@ import '../../../shared/providers/auth_provider.dart';
 import '../../../shared/widgets/health_badge.dart';
 import '../../../shared/widgets/primary_button.dart';
 import '../../../shared/widgets/skeleton_loader.dart';
+import '../widgets/cost_estimator_sheet.dart';
 import 'cooking_mode_screen.dart';
 
 String _difficultyLabel(String? v) {
@@ -494,6 +495,16 @@ class _IngredientsTab extends StatelessWidget {
           icon: const Icon(Icons.shopping_cart_outlined),
           label: const Text('Ajouter à ma liste de courses'),
           onPressed: onAddToList,
+        ),
+        const SizedBox(height: 10),
+        OutlinedButton.icon(
+          icon: const Icon(Icons.attach_money),
+          label: const Text('Estimer le coût en XOF'),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.primary,
+            side: const BorderSide(color: AppColors.primary),
+          ),
+          onPressed: () => showCostEstimator(context, recipe),
         ),
       ],
     );
