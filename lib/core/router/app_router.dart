@@ -10,6 +10,7 @@ import '../../features/recipes/screens/recipes_screen.dart';
 import '../../features/recipes/screens/recipe_detail_screen.dart';
 import '../../features/recipes/screens/recipe_create_screen.dart';
 import '../../features/ai_chef/screens/ai_chef_screen.dart';
+import '../../features/ai_chef/screens/ingredient_scanner_screen.dart';
 import '../../features/orders/screens/orders_screen.dart';
 import '../../features/orders/screens/restaurants_screen.dart';
 import '../../features/orders/screens/restaurant_detail_screen.dart';
@@ -81,6 +82,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/ai-chef',
             builder: (_, __) => const AiChefScreen(),
+          ),
+          GoRoute(
+            path: '/ingredient-scanner',
+            builder: (_, __) => const IngredientScannerScreen(),
           ),
           GoRoute(
             path: '/orders',

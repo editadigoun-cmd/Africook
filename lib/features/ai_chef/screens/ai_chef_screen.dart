@@ -167,6 +167,13 @@ class _AiChefScreenState extends ConsumerState<AiChefScreen> {
           SliverAppBar(
             pinned: true,
             expandedHeight: 120,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.camera_alt_outlined, color: Colors.white),
+                tooltip: 'Scanner les ingrédients',
+                onPressed: () => context.push('/ingredient-scanner'),
+              ),
+            ],
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 decoration: const BoxDecoration(
