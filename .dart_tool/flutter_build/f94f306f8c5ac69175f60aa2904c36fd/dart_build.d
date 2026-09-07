@@ -1,0 +1,1 @@
+ /home/user/africook/.dart_tool/flutter_build/f94f306f8c5ac69175f60aa2904c36fd/dart_build_result.json:  /home/user/africook/.dart_tool/package_config.json /home/user/africook/pubspec.yaml /opt/flutter/bin/cache/dart-sdk/version
