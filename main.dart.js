@@ -55270,9 +55270,13 @@ break
 case 6:case 1:return A.r(q,r)
 case 2:return A.q(o.at(-1),r)}})
 return A.t($async$Eu,r)},
-auO(a){if(B.c.p(a,"Invalid login"))return"Email ou mot de passe incorrect."
-if(B.c.p(a,"network"))return u.d
-return"Une erreur est survenue. R\xe9essayez."},
+auO(a){var s=a.toLowerCase()
+if(B.c.p(s,"invalid login")||B.c.p(s,"invalid_credentials")||B.c.p(s,"wrong password"))return"Email ou mot de passe incorrect."
+if(B.c.p(s,"email not confirmed")||B.c.p(s,"not confirmed"))return"Confirmez votre email avant de vous connecter."
+if(B.c.p(s,"user not found")||B.c.p(s,"no user"))return"Aucun compte trouv\xe9 avec cet email."
+if(B.c.p(s,"network")||B.c.p(s,"socket")||B.c.p(s,"connection"))return u.d
+if(B.c.p(s,"jwt")||B.c.p(s,"401"))return"Erreur d'authentification, r\xe9essayez dans quelques secondes."
+return"Une erreur est survenue. R\xe9essayez. ("+a+")"},
 I(a){var s,r=this,q=null,p=A.d_(A.lA(A.bz(28),A.ben("assets/icons/logo.png",new A.aVb(),B.rb,160,160),B.bn),q,q),o=A.md(r.x,B.on,q,B.lP,1,!1,q,B.b0,new A.aVc()),n=r.Q,m=t.p
 n=A.b([B.dB,p,B.h9,B.amQ,B.dC,B.aob,B.dB,o,B.bv,A.md(r.y,A.Hw(q,q,q,q,q,q,q,q,!0,q,q,q,q,q,q,q,q,q,q,q,q,q,q,q,q,q,q,q,q,q,q,q,q,q,q,q,q,q,q,q,"Mot de passe",!0,!0,!1,q,B.ok,q,q,q,q,q,q,A.eD(q,q,A.h5(n?B.us:B.ut,q,q,q),q,q,new A.aVd(r),q,q,q),q,q,q,q,q),q,q,1,n,q,B.b0,new A.aVe()),B.bU,new A.e2(B.fc,q,q,A.t5(B.an5,new A.aVf(a),q),q)],m)
 if(r.as!=null){p=A.al(B.d.aA(25.5),B.aF.q()>>>16&255,B.aF.q()>>>8&255,B.aF.q()&255)
@@ -55376,9 +55380,12 @@ break
 case 6:case 1:return A.r(q,r)
 case 2:return A.q(o.at(-1),r)}})
 return A.t($async$EQ,r)},
-auT(a){if(B.c.p(a,"already"))return"Cet email est d\xe9j\xe0 utilis\xe9."
-if(B.c.p(a,"network"))return u.d
-return"Une erreur est survenue. R\xe9essayez."},
+auT(a){var s=a.toLowerCase()
+if(B.c.p(s,"already")||B.c.p(s,"already registered")||B.c.p(s,"duplicate"))return"Cet email est d\xe9j\xe0 utilis\xe9."
+if(B.c.p(s,"weak password")||B.c.p(s,"password"))return"Mot de passe trop faible (minimum 6 caract\xe8res)."
+if(B.c.p(s,"invalid email")||B.c.p(s,"email"))return"Adresse email invalide."
+if(B.c.p(s,"network")||B.c.p(s,"socket")||B.c.p(s,"connection"))return u.d
+return"Une erreur est survenue. R\xe9essayez. ("+a+")"},
 I(a){var s=this,r=null,q=A.fo(r,r,r,!0,!0,r,r,1,r,r,r,!1,r,!1,r,r,r,r,!0,r,r,r,r,r,B.amR,r,r,r,1,r,!0),p=A.d_(A.lA(A.bz(28),A.ben("assets/icons/logo.png",new A.aYO(),B.rb,140,140),B.bn),r,r),o=A.md(s.x,B.uL,r,r,1,!1,r,B.LT,new A.aYP()),n=A.md(s.y,B.on,r,B.lP,1,!1,r,B.b0,new A.aYQ()),m=A.md(s.z,B.X0,r,B.M2,1,!1,r,B.b0,r),l=s.ax,k=t.p
 l=A.b([p,B.dB,B.and,B.dC,B.amF,B.lI,o,B.e6,n,B.e6,m,B.e6,A.md(s.Q,A.Hw(r,r,r,r,r,r,r,r,!0,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,"Mot de passe",!0,!0,!1,r,B.ok,r,r,r,r,r,r,A.eD(r,r,A.h5(l?B.us:B.ut,r,r,r),r,r,new A.aYR(s),r,r,r),r,r,r,r,r),r,r,1,l,r,B.b0,new A.aYS()),B.e6,A.md(s.as,B.WS,r,r,1,!0,r,B.b0,new A.aYT(s))],k)
 if(s.ay!=null){p=A.al(B.d.aA(25.5),B.aF.q()>>>16&255,B.aF.q()>>>8&255,B.aF.q()&255)
