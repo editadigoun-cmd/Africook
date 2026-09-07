@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -43,6 +44,31 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+    _recordHistory();
+  }
+
+  Future<void> _recordHistory() async {
+    final uid = SupabaseService.currentUserId;
+    if (uid == null) return;
+    try {
+      await SupabaseService.client.from('recipe_history').upsert({
+        'user_id': uid,
+        'recipe_id': widget.recipeId,
+        'viewed_at': DateTime.now().toIso8601String(),
+      }, onConflict: 'user_id,recipe_id');
+    } catch (_) {}
+  }
+
+  void _shareRecipe(RecipeModel recipe) {
+    final url = 'https://editadigoun-cmd.github.io/Africook/#/recipe/${recipe.id}';
+    Clipboard.setData(ClipboardData(text: url));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Lien copié dans le presse-papier !'),
+        backgroundColor: AppColors.primary,
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   @override
@@ -134,7 +160,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
                   ),
                   IconButton(
                     icon: const Icon(Icons.share_outlined, color: Colors.white),
-                    onPressed: () {},
+                    onPressed: () => _shareRecipe(recipe),
                   ),
                 ],
                 flexibleSpace: FlexibleSpaceBar(

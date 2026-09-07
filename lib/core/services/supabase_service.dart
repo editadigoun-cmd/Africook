@@ -169,6 +169,18 @@ class SupabaseService {
 
   // ─── SHOPPING LIST ──────────────────────────────────────
 
+  Future<List<RecipeModel>> getHistory(String userId) async {
+    final data = await client
+        .from('recipe_history')
+        .select('*, recipes(*, users!author_id(id, full_name, avatar_url))')
+        .eq('user_id', userId)
+        .order('viewed_at', ascending: false)
+        .limit(30);
+    return data
+        .map((e) => RecipeModel.fromJson(e['recipes'] as Map<String, dynamic>))
+        .toList();
+  }
+
   Future<List<Map<String, dynamic>>> getShoppingList(String userId) async {
     final data = await client
         .from('shopping_list_items')

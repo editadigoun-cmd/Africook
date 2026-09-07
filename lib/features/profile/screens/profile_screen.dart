@@ -166,7 +166,7 @@ class ProfileScreen extends ConsumerWidget {
                         _MenuItem(
                           icon: Icons.history,
                           label: 'Historique',
-                          onTap: () {},
+                          onTap: () => context.push('/history'),
                         ),
                         _MenuItem(
                           icon: Icons.shopping_cart_outlined,
