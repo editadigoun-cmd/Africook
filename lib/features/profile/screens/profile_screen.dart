@@ -29,8 +29,8 @@ final profileStatsProvider = FutureProvider<_ProfileStats>((ref) async {
       .select('id')
       .eq('user_id', uid);
   return _ProfileStats(
-    recipes: (recipesResp as List).length,
-    favorites: (favsResp as List).length,
+    recipes: recipesResp.length,
+    favorites: favsResp.length,
   );
 });
 

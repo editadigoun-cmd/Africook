@@ -98,6 +98,7 @@ class _CommunityPostCard extends StatefulWidget {
 class _CommunityPostCardState extends State<_CommunityPostCard> {
   bool _liked = false;
   int _likes = 0;
+  bool _following = false;
 
   @override
   Widget build(BuildContext context) => Container(
@@ -159,18 +160,34 @@ class _CommunityPostCardState extends State<_CommunityPostCard> {
                       ],
                     ),
                   ),
-                  TextButton(
-                    onPressed: () {},
-                    child: const Text(
-                      '+ Suivre',
-                      style: TextStyle(
-                        color: AppColors.primary,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
+                  if (widget.recipe.authorId != null &&
+                      widget.recipe.authorId != SupabaseService.currentUserId)
+                    Consumer(builder: (context, ref, _) {
+                      return TextButton(
+                        onPressed: () async {
+                          final uid = SupabaseService.currentUserId;
+                          if (uid == null) return;
+                          final newVal = !_following;
+                          setState(() => _following = newVal);
+                          try {
+                            await ref
+                                .read(supabaseServiceProvider)
+                                .toggleFollow(uid, widget.recipe.authorId!, newVal);
+                          } catch (_) {
+                            setState(() => _following = !newVal);
+                          }
+                        },
+                        child: Text(
+                          _following ? '✓ Suivi' : '+ Suivre',
+                          style: TextStyle(
+                            color: _following ? AppColors.textLight : AppColors.primary,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w600,
+                            fontSize: 12,
+                          ),
+                        ),
+                      );
+                    }),
                 ],
               ),
             ),
@@ -219,19 +236,27 @@ class _CommunityPostCardState extends State<_CommunityPostCard> {
                   IconButton(
                     icon: const Icon(Icons.comment_outlined,
                         color: AppColors.textLight),
-                    onPressed: () {},
+                    onPressed: () => context.push('/recipe/${widget.recipe.id}'),
                   ),
                   const SizedBox(width: 8),
-                  IconButton(
-                    icon: const Icon(Icons.chat_bubble_outline,
-                        color: AppColors.textLight),
-                    tooltip: "Contacter l'auteur",
-                    onPressed: () async {
-                      final uid = SupabaseService.currentUserId;
-                      if (uid == null || widget.recipe.authorId == null) return;
-                      // Open chat with recipe author
-                    },
-                  ),
+                  Consumer(builder: (context, ref, _) {
+                    return IconButton(
+                      icon: const Icon(Icons.chat_bubble_outline,
+                          color: AppColors.textLight),
+                      tooltip: "Contacter l'auteur",
+                      onPressed: () async {
+                        final uid = SupabaseService.currentUserId;
+                        if (uid == null || widget.recipe.authorId == null) return;
+                        final conv = await ref
+                            .read(supabaseServiceProvider)
+                            .getOrCreateConversation(uid, widget.recipe.authorId!,
+                                recipeId: widget.recipe.id);
+                        if (context.mounted && conv != null) {
+                          context.push('/messages/${conv.id}');
+                        }
+                      },
+                    );
+                  }),
                   const Spacer(),
                   IconButton(
                     icon: const Icon(Icons.share_outlined,

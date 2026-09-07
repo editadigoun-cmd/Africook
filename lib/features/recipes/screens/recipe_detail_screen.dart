@@ -152,9 +152,9 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
                           ),
                         ),
                       ),
-                      // Recipe info overlay
+                      // Recipe info overlay — bottom offset accounts for TabBar height (~48px)
                       Positioned(
-                        bottom: 16,
+                        bottom: 64,
                         left: 16,
                         right: 16,
                         child: Column(
