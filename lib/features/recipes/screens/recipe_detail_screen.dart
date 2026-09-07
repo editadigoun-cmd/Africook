@@ -11,6 +11,7 @@ import '../../../shared/providers/auth_provider.dart';
 import '../../../shared/widgets/health_badge.dart';
 import '../../../shared/widgets/primary_button.dart';
 import '../../../shared/widgets/skeleton_loader.dart';
+import 'cooking_mode_screen.dart';
 
 String _difficultyLabel(String? v) {
   switch (v) {
@@ -317,7 +318,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
                         onAddToList: () => _addToShoppingList(recipe),
                       ),
                       // Steps tab
-                      _StepsTab(steps: recipe.steps),
+                      _StepsTab(steps: recipe.steps, recipe: recipe),
                       // Video tab
                       _VideoTab(videoUrl: recipe.videoUrl),
                       // Nutrition tab
@@ -554,73 +555,117 @@ class _CounterBtn extends StatelessWidget {
 
 class _StepsTab extends StatelessWidget {
   final List<RecipeStep> steps;
+  final RecipeModel recipe;
 
-  const _StepsTab({required this.steps});
+  const _StepsTab({required this.steps, required this.recipe});
 
   @override
   Widget build(BuildContext context) {
     if (steps.isEmpty) {
       return const Center(child: Text('Aucune étape disponible'));
     }
-    return ListView.separated(
-      padding: const EdgeInsets.all(16),
-      itemCount: steps.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 16),
-      itemBuilder: (_, i) {
-        final step = steps[i];
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: const BoxDecoration(
-                color: AppColors.primary,
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Text(
-                  '${step.stepNumber}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w700,
-                    fontSize: 14,
-                  ),
-                ),
+    return Column(
+      children: [
+        // Mode cuisine button
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+          child: GestureDetector(
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                fullscreenDialog: true,
+                builder: (_) => CookingModeScreen(recipe: recipe),
               ),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF1A1A2E), Color(0xFF374151)],
+                ),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  if (step.durationMinutes != null)
-                    Text(
-                      '${step.durationMinutes} min',
-                      style: const TextStyle(
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w600,
-                        fontSize: 11,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  const SizedBox(height: 2),
+                  Icon(Icons.local_dining, color: Colors.white, size: 18),
+                  SizedBox(width: 8),
                   Text(
-                    step.instruction,
-                    style: const TextStyle(
-                      fontFamily: 'Nunito',
-                      fontSize: 14,
-                      color: AppColors.textDark,
-                      height: 1.5,
+                    'Mode cuisine — plein écran',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                      color: Colors.white,
                     ),
                   ),
                 ],
               ),
             ),
-          ],
-        );
-      },
+          ),
+        ),
+        Expanded(
+          child: ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemCount: steps.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 16),
+            itemBuilder: (_, i) {
+              final step = steps[i];
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: const BoxDecoration(
+                      color: AppColors.primary,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        '${step.stepNumber}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (step.durationMinutes != null)
+                          Text(
+                            '${step.durationMinutes} min',
+                            style: const TextStyle(
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w600,
+                              fontSize: 11,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        const SizedBox(height: 2),
+                        Text(
+                          step.instruction,
+                          style: const TextStyle(
+                            fontFamily: 'Nunito',
+                            fontSize: 14,
+                            color: AppColors.textDark,
+                            height: 1.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }
