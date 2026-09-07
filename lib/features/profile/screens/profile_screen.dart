@@ -2,10 +2,37 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/services/supabase_service.dart';
 import '../../../shared/providers/auth_provider.dart';
 import '../../../shared/widgets/primary_button.dart';
+
+class _ProfileStats {
+  final int recipes;
+  final int favorites;
+
+  const _ProfileStats({required this.recipes, required this.favorites});
+}
+
+final profileStatsProvider = FutureProvider<_ProfileStats>((ref) async {
+  final uid = SupabaseService.currentUserId;
+  if (uid == null) return const _ProfileStats(recipes: 0, favorites: 0);
+  final client = Supabase.instance.client;
+  final recipesResp = await client
+      .from('recipes')
+      .select('id')
+      .eq('author_id', uid)
+      .eq('is_published', true);
+  final favsResp = await client
+      .from('favorites')
+      .select('id')
+      .eq('user_id', uid);
+  return _ProfileStats(
+    recipes: (recipesResp as List).length,
+    favorites: (favsResp as List).length,
+  );
+});
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -107,13 +134,18 @@ class ProfileScreen extends ConsumerWidget {
                 child: Column(
                   children: [
                     // Quick stats
-                    Row(
-                      children: [
-                        _StatBox(value: '12', label: 'Recettes'),
-                        _StatBox(value: '48', label: 'Favoris'),
-                        _StatBox(value: '156', label: 'Abonnés'),
-                        _StatBox(value: '23', label: 'Abonnements'),
-                      ],
+                    ref.watch(profileStatsProvider).when(
+                      loading: () => const SizedBox(
+                        height: 48,
+                        child: Center(child: CircularProgressIndicator(color: AppColors.primary, strokeWidth: 2)),
+                      ),
+                      error: (_, __) => const SizedBox.shrink(),
+                      data: (stats) => Row(
+                        children: [
+                          _StatBox(value: '${stats.recipes}', label: 'Recettes'),
+                          _StatBox(value: '${stats.favorites}', label: 'Favoris'),
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 20),
 

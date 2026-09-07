@@ -81,18 +81,23 @@ class RecipeModel {
         author: json['users'] != null
             ? UserModel.fromJson(json['users'] as Map<String, dynamic>)
             : null,
-        ingredients: (json['recipe_ingredients'] as List?)
-                ?.map((e) => RecipeIngredient.fromJson(e as Map<String, dynamic>))
-                .toList() ??
-            [],
-        steps: (json['recipe_steps'] as List?)
-                ?.map((e) => RecipeStep.fromJson(e as Map<String, dynamic>))
-                .toList() ??
-            [],
-        nutrition: json['nutrition_info'] != null && (json['nutrition_info'] as List).isNotEmpty
-            ? NutritionInfo.fromJson(
-                (json['nutrition_info'] as List).first as Map<String, dynamic>)
-            : null,
+        ingredients: json['recipe_ingredients'] != null
+            ? List<dynamic>.from(json['recipe_ingredients'] as Iterable)
+                .map((e) => RecipeIngredient.fromJson(e as Map<String, dynamic>))
+                .toList()
+            : [],
+        steps: json['recipe_steps'] != null
+            ? List<dynamic>.from(json['recipe_steps'] as Iterable)
+                .map((e) => RecipeStep.fromJson(e as Map<String, dynamic>))
+                .toList()
+            : [],
+        nutrition: () {
+          final raw = json['nutrition_info'];
+          if (raw == null) return null;
+          final list = List<dynamic>.from(raw as Iterable);
+          if (list.isEmpty) return null;
+          return NutritionInfo.fromJson(list.first as Map<String, dynamic>);
+        }(),
       );
 
   Map<String, dynamic> toJson() => {
