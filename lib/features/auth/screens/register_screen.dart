@@ -58,9 +58,20 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   }
 
   String _mapError(String e) {
-    if (e.contains('already')) return 'Cet email est déjà utilisé.';
-    if (e.contains('network')) return AppStrings.networkError;
-    return AppStrings.genericError;
+    final lower = e.toLowerCase();
+    if (lower.contains('already') || lower.contains('already registered') || lower.contains('duplicate')) {
+      return 'Cet email est déjà utilisé.';
+    }
+    if (lower.contains('weak password') || lower.contains('password')) {
+      return 'Mot de passe trop faible (minimum 6 caractères).';
+    }
+    if (lower.contains('invalid email') || lower.contains('email')) {
+      return 'Adresse email invalide.';
+    }
+    if (lower.contains('network') || lower.contains('socket') || lower.contains('connection')) {
+      return AppStrings.networkError;
+    }
+    return '${AppStrings.genericError} ($e)';
   }
 
   @override

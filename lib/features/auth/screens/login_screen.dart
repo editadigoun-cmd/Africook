@@ -48,9 +48,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   String _mapError(String e) {
-    if (e.contains('Invalid login')) return 'Email ou mot de passe incorrect.';
-    if (e.contains('network')) return AppStrings.networkError;
-    return AppStrings.genericError;
+    final lower = e.toLowerCase();
+    if (lower.contains('invalid login') || lower.contains('invalid_credentials') || lower.contains('wrong password')) {
+      return 'Email ou mot de passe incorrect.';
+    }
+    if (lower.contains('email not confirmed') || lower.contains('not confirmed')) {
+      return 'Confirmez votre email avant de vous connecter.';
+    }
+    if (lower.contains('user not found') || lower.contains('no user')) {
+      return 'Aucun compte trouvé avec cet email.';
+    }
+    if (lower.contains('network') || lower.contains('socket') || lower.contains('connection')) {
+      return AppStrings.networkError;
+    }
+    if (lower.contains('jwt') || lower.contains('401')) {
+      return 'Erreur d\'authentification, réessayez dans quelques secondes.';
+    }
+    // Show partial error in dev to help debug
+    return '${AppStrings.genericError} ($e)';
   }
 
   @override
