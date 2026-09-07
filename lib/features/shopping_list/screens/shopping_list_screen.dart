@@ -36,13 +36,13 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
 
     await ref.read(supabaseServiceProvider).addShoppingItem({
       'user_id': uid,
-      'ingredient_name': _itemCtrl.text.trim(),
+      'name': _itemCtrl.text.trim(),
     });
     _itemCtrl.clear();
     ref.invalidate(shoppingListProvider);
   }
 
-  Future<void> _toggle(int id, bool checked) async {
+  Future<void> _toggle(String id, bool checked) async {
     await ref
         .read(supabaseServiceProvider)
         .toggleShoppingItem(id, checked);
@@ -146,11 +146,11 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
                         ),
                         ...entry.value.map((item) => _ShoppingItem(
                               item: item,
-                              onToggle: (v) => _toggle(item['id'], v),
+                              onToggle: (v) => _toggle(item['id'] as String, v),
                               onDelete: () async {
                                 await ref
                                     .read(supabaseServiceProvider)
-                                    .deleteShoppingItem(item['id']);
+                                    .deleteShoppingItem(item['id'] as String);
                                 ref.invalidate(shoppingListProvider);
                               },
                             )),
@@ -214,7 +214,7 @@ class _ShoppingItem extends StatelessWidget {
           ),
         ),
         title: Text(
-          '${item['ingredient_name']} ${item['quantity'] ?? ''} ${item['unit'] ?? ''}',
+          '${item['name'] ?? item['ingredient_name'] ?? ''} ${item['quantity'] ?? ''} ${item['unit'] ?? ''}'.trim(),
           style: TextStyle(
             fontFamily: 'Nunito',
             fontSize: 14,

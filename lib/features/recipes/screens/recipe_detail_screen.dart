@@ -107,7 +107,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
       await service.addShoppingItem({
         'user_id': uid,
         'recipe_id': recipe.id,
-        'ingredient_name': ing.name,
+        'name': ing.name,
         'quantity': ing.quantity,
         'unit': ing.unit,
       });

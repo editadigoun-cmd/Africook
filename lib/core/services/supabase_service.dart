@@ -218,10 +218,10 @@ class SupabaseService {
   Future<void> addShoppingItem(Map<String, dynamic> item) =>
       client.from('shopping_list_items').insert(item);
 
-  Future<void> toggleShoppingItem(int id, bool checked) =>
+  Future<void> toggleShoppingItem(String id, bool checked) =>
       client.from('shopping_list_items').update({'is_checked': checked}).eq('id', id);
 
-  Future<void> deleteShoppingItem(int id) =>
+  Future<void> deleteShoppingItem(String id) =>
       client.from('shopping_list_items').delete().eq('id', id);
 
   Future<void> clearCheckedItems(String userId) => client
