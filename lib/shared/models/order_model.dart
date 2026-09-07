@@ -39,10 +39,11 @@ class OrderModel {
         paymentStatus: json['payment_status'] as String? ?? 'unpaid',
         fedapayTransactionId: json['fedapay_transaction_id'] as String?,
         createdAt: DateTime.parse(json['created_at'] as String),
-        items: (json['order_items'] as List?)
-                ?.map((e) => OrderItem.fromJson(e as Map<String, dynamic>))
-                .toList() ??
-            [],
+        items: json['order_items'] is List
+            ? (json['order_items'] as List)
+                .map((e) => OrderItem.fromJson(e as Map<String, dynamic>))
+                .toList()
+            : [],
       );
 }
 

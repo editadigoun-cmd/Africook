@@ -71,8 +71,8 @@ class RecipeModel {
         isAiGenerated: json['is_ai_generated'] as bool? ?? false,
         isCommunity: json['is_community'] as bool? ?? false,
         isPublished: json['is_published'] as bool? ?? true,
-        healthTags: json['health_tags'] != null
-            ? List<String>.from(json['health_tags'] as Iterable)
+        healthTags: json['health_tags'] is List
+            ? (json['health_tags'] as List).map((e) => e as String).toList()
             : [],
         averageRating: (json['average_rating'] as num?)?.toDouble() ?? 0,
         ratingsCount: json['ratings_count'] as int? ?? 0,
@@ -83,22 +83,20 @@ class RecipeModel {
         author: json['users'] != null
             ? UserModel.fromJson(json['users'] as Map<String, dynamic>)
             : null,
-        ingredients: json['recipe_ingredients'] != null
-            ? List<dynamic>.from(json['recipe_ingredients'] as Iterable)
+        ingredients: json['recipe_ingredients'] is List
+            ? (json['recipe_ingredients'] as List)
                 .map((e) => RecipeIngredient.fromJson(e as Map<String, dynamic>))
                 .toList()
             : [],
-        steps: json['recipe_steps'] != null
-            ? List<dynamic>.from(json['recipe_steps'] as Iterable)
+        steps: json['recipe_steps'] is List
+            ? (json['recipe_steps'] as List)
                 .map((e) => RecipeStep.fromJson(e as Map<String, dynamic>))
                 .toList()
             : [],
         nutrition: () {
           final raw = json['nutrition_info'];
-          if (raw == null) return null;
-          final list = List<dynamic>.from(raw as Iterable);
-          if (list.isEmpty) return null;
-          return NutritionInfo.fromJson(list.first as Map<String, dynamic>);
+          if (raw is! List || (raw as List).isEmpty) return null;
+          return NutritionInfo.fromJson((raw as List).first as Map<String, dynamic>);
         }(),
       );
 
