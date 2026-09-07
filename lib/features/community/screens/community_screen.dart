@@ -13,12 +13,26 @@ final communityRecipesProvider = FutureProvider<List<RecipeModel>>((ref) async {
   return ref.read(supabaseServiceProvider).getRecipes(limit: 20);
 });
 
+final myRecipesProvider = FutureProvider<List<RecipeModel>>((ref) async {
+  final uid = SupabaseService.currentUserId;
+  if (uid == null) return [];
+  return ref.read(supabaseServiceProvider).getUserRecipes(uid);
+});
+
+final followedRecipesProvider = FutureProvider<List<RecipeModel>>((ref) async {
+  final uid = SupabaseService.currentUserId;
+  if (uid == null) return [];
+  return ref.read(supabaseServiceProvider).getFollowedRecipes(uid);
+});
+
 class CommunityScreen extends ConsumerWidget {
   const CommunityScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final recipesAsync = ref.watch(communityRecipesProvider);
+    final myRecipesAsync = ref.watch(myRecipesProvider);
+    final followedAsync = ref.watch(followedRecipesProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -30,37 +44,49 @@ class CommunityScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // Tabs
-          DefaultTabController(
-            length: 3,
-            child: Column(
-              children: [
-                const TabBar(
-                  indicatorColor: AppColors.primary,
-                  labelColor: AppColors.primary,
-                  unselectedLabelColor: AppColors.textLight,
-                  tabs: [
-                    Tab(text: 'Tendances'),
-                    Tab(text: 'Abonnements'),
-                    Tab(text: 'Mes recettes'),
-                  ],
-                ),
-                SizedBox(
-                  height: MediaQuery.of(context).size.height - 200,
-                  child: TabBarView(
-                    children: [
-                      _RecipesFeed(recipesAsync: recipesAsync),
-                      const _EmptyTab(msg: 'Abonnez-vous à des chefs'),
-                      const _EmptyTab(msg: 'Publiez votre première recette'),
-                    ],
-                  ),
-                ),
+      body: DefaultTabController(
+        length: 3,
+        child: Column(
+          children: [
+            const TabBar(
+              indicatorColor: AppColors.primary,
+              labelColor: AppColors.primary,
+              unselectedLabelColor: AppColors.textLight,
+              tabs: [
+                Tab(text: 'Tendances'),
+                Tab(text: 'Abonnements'),
+                Tab(text: 'Mes recettes'),
               ],
             ),
-          ),
-        ],
+            Expanded(
+              child: TabBarView(
+                children: [
+                  _RecipesFeed(recipesAsync: recipesAsync),
+                  followedAsync.when(
+                    loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
+                    error: (e, _) => Center(child: Text('Erreur : $e')),
+                    data: (recipes) => recipes.isEmpty
+                        ? const _EmptyTab(msg: 'Abonnez-vous à des chefs pour voir leurs recettes')
+                        : _RecipesFeed(recipesAsync: AsyncValue.data(recipes)),
+                  ),
+                  myRecipesAsync.when(
+                    loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
+                    error: (e, _) => Center(child: Text('Erreur : $e')),
+                    data: (recipes) => recipes.isEmpty
+                        ? _EmptyTab(
+                            msg: 'Publiez votre première recette !',
+                            action: TextButton(
+                              onPressed: () => context.push('/recipe/create'),
+                              child: const Text('Créer une recette'),
+                            ),
+                          )
+                        : _RecipesFeed(recipesAsync: AsyncValue.data(recipes)),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -99,6 +125,36 @@ class _CommunityPostCardState extends State<_CommunityPostCard> {
   bool _liked = false;
   int _likes = 0;
   bool _following = false;
+  bool _likesLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _likes = widget.recipe.likesCount;
+    _loadLikeState();
+  }
+
+  Future<void> _loadLikeState() async {
+    final uid = SupabaseService.currentUserId;
+    if (uid == null) return;
+    try {
+      final service = SupabaseService();
+      final liked = await service.isLiked(uid, widget.recipe.id);
+      if (mounted) setState(() { _liked = liked; _likesLoaded = true; });
+    } catch (_) {}
+  }
+
+  Future<void> _toggleLike(WidgetRef ref) async {
+    final uid = SupabaseService.currentUserId;
+    if (uid == null) return;
+    final newVal = !_liked;
+    setState(() { _liked = newVal; _likes += newVal ? 1 : -1; });
+    try {
+      await ref.read(supabaseServiceProvider).toggleLike(uid, widget.recipe.id, newVal);
+    } catch (_) {
+      setState(() { _liked = !newVal; _likes += newVal ? -1 : 1; });
+    }
+  }
 
   @override
   Widget build(BuildContext context) => Container(
@@ -194,13 +250,8 @@ class _CommunityPostCardState extends State<_CommunityPostCard> {
 
             // Image
             if (widget.recipe.imageUrl != null)
-              GestureDetector(
-                onDoubleTap: () {
-                  setState(() {
-                    _liked = true;
-                    _likes++;
-                  });
-                },
+              Consumer(builder: (context, ref, _) => GestureDetector(
+                onDoubleTap: () { if (!_liked) _toggleLike(ref); },
                 onTap: () => context.push('/recipe/${widget.recipe.id}'),
                 child: Image.network(
                   widget.recipe.imageUrl!,
@@ -208,23 +259,20 @@ class _CommunityPostCardState extends State<_CommunityPostCard> {
                   width: double.infinity,
                   fit: BoxFit.cover,
                 ),
-              ),
+              )),
 
             // Actions
             Padding(
               padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
               child: Row(
                 children: [
-                  IconButton(
+                  Consumer(builder: (context, ref, _) => IconButton(
                     icon: Icon(
                       _liked ? Icons.favorite : Icons.favorite_border,
                       color: _liked ? AppColors.error : AppColors.textLight,
                     ),
-                    onPressed: () => setState(() {
-                      _liked = !_liked;
-                      _likes += _liked ? 1 : -1;
-                    }),
-                  ),
+                    onPressed: () => _toggleLike(ref),
+                  )),
                   Text(
                     '$_likes',
                     style: const TextStyle(
@@ -298,17 +346,22 @@ class _CommunityPostCardState extends State<_CommunityPostCard> {
 
 class _EmptyTab extends StatelessWidget {
   final String msg;
+  final Widget? action;
 
-  const _EmptyTab({required this.msg});
+  const _EmptyTab({required this.msg, this.action});
 
   @override
   Widget build(BuildContext context) => Center(
-        child: Text(
-          msg,
-          style: const TextStyle(
-            fontFamily: 'Nunito',
-            color: AppColors.textLight,
-          ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              msg,
+              style: const TextStyle(fontFamily: 'Nunito', color: AppColors.textLight),
+              textAlign: TextAlign.center,
+            ),
+            if (action != null) ...[const SizedBox(height: 12), action!],
+          ],
         ),
       );
 }

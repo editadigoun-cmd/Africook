@@ -297,14 +297,49 @@ class SupabaseService {
 
   Future<void> toggleLike(String userId, String recipeId, bool add) async {
     if (add) {
-      await client.from('likes').insert({'user_id': userId, 'recipe_id': recipeId});
+      await client.from('recipe_likes').insert({'user_id': userId, 'recipe_id': recipeId});
     } else {
       await client
-          .from('likes')
+          .from('recipe_likes')
           .delete()
           .eq('user_id', userId)
           .eq('recipe_id', recipeId);
     }
+  }
+
+  Future<bool> isLiked(String userId, String recipeId) async {
+    final result = await client
+        .from('recipe_likes')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('recipe_id', recipeId)
+        .maybeSingle();
+    return result != null;
+  }
+
+  Future<List<RecipeModel>> getUserRecipes(String userId) async {
+    final data = await client
+        .from('recipes')
+        .select('*, users!author_id(id, full_name, avatar_url)')
+        .eq('author_id', userId)
+        .order('created_at', ascending: false);
+    return data.map(RecipeModel.fromJson).toList();
+  }
+
+  Future<List<RecipeModel>> getFollowedRecipes(String userId) async {
+    final follows = await client
+        .from('follows')
+        .select('following_id')
+        .eq('follower_id', userId);
+    final ids = follows.map((f) => f['following_id'] as String).toList();
+    if (ids.isEmpty) return [];
+    final data = await client
+        .from('recipes')
+        .select('*, users!author_id(id, full_name, avatar_url)')
+        .inFilter('author_id', ids)
+        .order('created_at', ascending: false)
+        .limit(30);
+    return data.map(RecipeModel.fromJson).toList();
   }
 
   Future<void> toggleFollow(

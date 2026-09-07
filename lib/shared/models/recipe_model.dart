@@ -18,6 +18,7 @@ class RecipeModel {
   final double averageRating;
   final int ratingsCount;
   final int viewsCount;
+  final int likesCount;
   final DateTime? createdAt;
   final UserModel? author;
   final List<RecipeIngredient> ingredients;
@@ -45,6 +46,7 @@ class RecipeModel {
     this.averageRating = 0,
     this.ratingsCount = 0,
     this.viewsCount = 0,
+    this.likesCount = 0,
     this.createdAt,
     this.author,
     this.ingredients = const [],
@@ -77,6 +79,7 @@ class RecipeModel {
         averageRating: (json['average_rating'] as num?)?.toDouble() ?? 0,
         ratingsCount: json['ratings_count'] as int? ?? 0,
         viewsCount: json['views_count'] as int? ?? 0,
+        likesCount: json['likes_count'] as int? ?? 0,
         createdAt: json['created_at'] != null
             ? DateTime.parse(json['created_at'] as String)
             : null,
