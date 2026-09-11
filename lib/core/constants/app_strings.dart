@@ -58,26 +58,67 @@ class AppStrings {
 
   // Categories
   static const List<Map<String, String>> categories = [
+    // Cuisine africaine
     {'name': 'Béninoises', 'emoji': '🇧🇯', 'slug': 'beninoise'},
     {'name': 'Africaines', 'emoji': '🌍', 'slug': 'africaine'},
-    {'name': 'Internationales', 'emoji': '🌐', 'slug': 'internationale'},
-    {'name': 'Végétariennes', 'emoji': '🥗', 'slug': 'vegetarienne'},
+    {'name': 'Sénégalaise', 'emoji': '🇸🇳', 'slug': 'senegalaise'},
+    {'name': 'Ivoirienne', 'emoji': '🇨🇮', 'slug': 'ivoirienne'},
+    {'name': 'Ghanéenne', 'emoji': '🇬🇭', 'slug': 'ghaneenne'},
+    {'name': 'Nigériane', 'emoji': '🇳🇬', 'slug': 'nigeriane'},
+    {'name': 'Camerounaise', 'emoji': '🇨🇲', 'slug': 'camerounaise'},
+    {'name': 'Maghrébine', 'emoji': '🌙', 'slug': 'maghrebine'},
+    {'name': 'Asiatique fusion', 'emoji': '🥢', 'slug': 'asiatique'},
+    // Protéines
     {'name': 'Poissons & Fruits de mer', 'emoji': '🐟', 'slug': 'poisson'},
     {'name': 'Viandes & Grillades', 'emoji': '🥩', 'slug': 'viande'},
     {'name': 'Volailles', 'emoji': '🍗', 'slug': 'volaille'},
-    {'name': 'Soupes & Sauces', 'emoji': '🥘', 'slug': 'soupe'},
-    {'name': 'Riz & Céréales', 'emoji': '🍚', 'slug': 'riz'},
+    {'name': 'Végétariennes', 'emoji': '🥗', 'slug': 'vegetarienne'},
+    {'name': 'Vegan', 'emoji': '🌱', 'slug': 'vegan'},
     {'name': 'Légumineuses', 'emoji': '🫘', 'slug': 'legumineuse'},
-    {'name': 'Petit-déjeuner', 'emoji': '🥣', 'slug': 'petit-dejeuner'},
-    {'name': 'Boissons & Jus', 'emoji': '🥤', 'slug': 'boisson'},
-    {'name': 'Desserts & Pâtisseries', 'emoji': '🍰', 'slug': 'dessert'},
+    // Féculents & bases
+    {'name': 'Riz & Céréales', 'emoji': '🍚', 'slug': 'riz'},
+    {'name': 'Pâtes & Fufu', 'emoji': '🍝', 'slug': 'pate-fufu'},
+    {'name': 'Ignames & Tubercules', 'emoji': '🍠', 'slug': 'igname'},
+    {'name': 'Plantains & Bananes', 'emoji': '🍌', 'slug': 'plantain'},
+    {'name': 'Pain & Viennoiseries', 'emoji': '🍞', 'slug': 'pain'},
+    // Plats & préparations
+    {'name': 'Soupes & Sauces', 'emoji': '🥘', 'slug': 'soupe'},
+    {'name': 'Grillades & Brochettes', 'emoji': '🔥', 'slug': 'grillade'},
+    {'name': 'Mijotés & Ragoûts', 'emoji': '🫕', 'slug': 'mijote'},
+    {'name': 'Fritures', 'emoji': '🍳', 'slug': 'friture'},
+    {'name': 'Recettes vapeur', 'emoji': '♨️', 'slug': 'vapeur'},
+    {'name': 'Recettes au four', 'emoji': '🫙', 'slug': 'four'},
     {'name': 'Street food & Snacks', 'emoji': '🍢', 'slug': 'street-food'},
-    {'name': 'Rapides', 'emoji': '⚡', 'slug': 'rapide'},
+    {'name': 'Beignets & Frits', 'emoji': '🧆', 'slug': 'beignet'},
+    // Repas du jour
+    {'name': 'Petit-déjeuner', 'emoji': '🥣', 'slug': 'petit-dejeuner'},
+    {'name': 'Bouillies & Porridges', 'emoji': '🥛', 'slug': 'bouillie'},
+    {'name': 'Salades & Crudités', 'emoji': '🥙', 'slug': 'salade'},
+    // Boissons
+    {'name': 'Boissons traditionnelles', 'emoji': '🍵', 'slug': 'boisson-traditionnelle'},
+    {'name': 'Jus de fruits', 'emoji': '🍊', 'slug': 'jus-de-fruits'},
+    {'name': 'Smoothies & Shakes', 'emoji': '🥤', 'slug': 'smoothie'},
+    {'name': 'Boissons chaudes', 'emoji': '☕', 'slug': 'boisson-chaude'},
+    {'name': 'Cocktails & Mocktails', 'emoji': '🍹', 'slug': 'cocktail'},
+    {'name': 'Boissons fermentées', 'emoji': '🫗', 'slug': 'boisson-fermentee'},
+    // Desserts & sucreries
+    {'name': 'Pâtisseries & Gâteaux', 'emoji': '🎂', 'slug': 'patisserie'},
+    {'name': 'Desserts & Sucreries', 'emoji': '🍰', 'slug': 'dessert'},
+    {'name': 'Glaces & Sorbets', 'emoji': '🍦', 'slug': 'glace'},
+    // Santé & régimes
+    {'name': 'Sans gluten', 'emoji': '🌾', 'slug': 'sans-gluten'},
+    {'name': 'Protéiné', 'emoji': '💪', 'slug': 'proteine'},
+    {'name': 'Léger & Diététique', 'emoji': '🩺', 'slug': 'dietetique'},
+    {'name': 'Enfants & Bébés', 'emoji': '🧒', 'slug': 'enfant'},
+    // Occasions & pratique
+    {'name': 'Fêtes & Cérémonies', 'emoji': '🎉', 'slug': 'fete'},
+    {'name': 'Ramadan & Jeûne', 'emoji': '🌙', 'slug': 'ramadan'},
+    {'name': 'Repas rapides (< 30 min)', 'emoji': '⚡', 'slug': 'rapide'},
+    {'name': 'Batch cooking', 'emoji': '📦', 'slug': 'batch-cooking'},
     {'name': 'Économiques', 'emoji': '💰', 'slug': 'economique'},
-    {'name': 'Sport & Fitness', 'emoji': '🏃', 'slug': 'sport'},
-    {'name': 'Diabète & Santé', 'emoji': '🩺', 'slug': 'sante'},
-    {'name': 'Épicées', 'emoji': '🌶️', 'slug': 'epicee'},
-    {'name': 'Pour enfants', 'emoji': '🧒', 'slug': 'enfant'},
+    // Condiments
+    {'name': 'Condiments & Épices', 'emoji': '🌶️', 'slug': 'condiment'},
+    {'name': 'Conserves & Marinades', 'emoji': '🫙', 'slug': 'conserve'},
   ];
 
   // AI Chef chips

@@ -102,16 +102,23 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              itemCount: AppStrings.categories.length + 1,
+              itemCount: 10, // "Toutes" + 8 premières + "Voir +"
               separatorBuilder: (_, __) => const SizedBox(width: 8),
               itemBuilder: (_, i) {
                 if (i == 0) {
                   return _FilterChip(
-                    label: 'Toutes',
+                    label: '🍽 Toutes',
                     isSelected: selectedCategory == null,
                     onTap: () => ref
                         .read(_selectedCategoryProvider.notifier)
                         .state = null,
+                  );
+                }
+                if (i == 9) {
+                  return _FilterChip(
+                    label: '≡ Catégories',
+                    isSelected: false,
+                    onTap: () => _showCategorySheet(context, ref, selectedCategory),
                   );
                 }
                 final cat = AppStrings.categories[i - 1];
@@ -192,6 +199,164 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showCategorySheet(
+      BuildContext context, WidgetRef ref, String? current) {
+    const groups = [
+      {
+        'label': '🌍 Cuisine africaine',
+        'slugs': ['beninoise', 'africaine', 'senegalaise', 'ivoirienne', 'ghaneenne', 'nigeriane', 'camerounaise', 'maghrebine', 'asiatique'],
+      },
+      {
+        'label': '🥩 Protéines',
+        'slugs': ['poisson', 'viande', 'volaille', 'vegetarienne', 'vegan', 'legumineuse'],
+      },
+      {
+        'label': '🍚 Féculents & bases',
+        'slugs': ['riz', 'pate-fufu', 'igname', 'plantain', 'pain'],
+      },
+      {
+        'label': '🍳 Modes de cuisson',
+        'slugs': ['soupe', 'grillade', 'mijote', 'friture', 'vapeur', 'four', 'street-food', 'beignet'],
+      },
+      {
+        'label': '☀️ Repas du jour',
+        'slugs': ['petit-dejeuner', 'bouillie', 'salade'],
+      },
+      {
+        'label': '🥤 Boissons',
+        'slugs': ['boisson-traditionnelle', 'jus-de-fruits', 'smoothie', 'boisson-chaude', 'cocktail', 'boisson-fermentee'],
+      },
+      {
+        'label': '🍰 Desserts & sucreries',
+        'slugs': ['patisserie', 'dessert', 'glace'],
+      },
+      {
+        'label': '🩺 Santé & régimes',
+        'slugs': ['sans-gluten', 'proteine', 'dietetique', 'enfant'],
+      },
+      {
+        'label': '🎉 Occasions',
+        'slugs': ['fete', 'ramadan', 'rapide', 'batch-cooking', 'economique'],
+      },
+      {
+        'label': '🌶️ Condiments',
+        'slugs': ['condiment', 'conserve'],
+      },
+    ];
+
+    final catBySlug = {
+      for (final c in AppStrings.categories) c['slug']!: c,
+    };
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (_) => DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.75,
+        maxChildSize: 0.95,
+        builder: (_, ctrl) => Column(
+          children: [
+            const SizedBox(height: 8),
+            Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2))),
+            const SizedBox(height: 12),
+            const Text('Choisir une catégorie',
+                style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w700,
+                    fontSize: 16)),
+            const SizedBox(height: 4),
+            Expanded(
+              child: ListView(
+                controller: ctrl,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                children: [
+                  ListTile(
+                    leading: const Text('🍽', style: TextStyle(fontSize: 22)),
+                    title: const Text('Toutes les recettes'),
+                    selected: current == null,
+                    selectedTileColor: AppColors.primary.withOpacity(0.08),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    onTap: () {
+                      ref.read(_selectedCategoryProvider.notifier).state = null;
+                      Navigator.pop(context);
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  for (final group in groups) ...[
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12, bottom: 4),
+                      child: Text(group['label'] as String,
+                          style: const TextStyle(
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                              color: AppColors.textLight)),
+                    ),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 6,
+                      children: [
+                        for (final slug in group['slugs'] as List<String>)
+                          if (catBySlug.containsKey(slug))
+                            GestureDetector(
+                              onTap: () {
+                                ref
+                                    .read(_selectedCategoryProvider.notifier)
+                                    .state = slug;
+                                Navigator.pop(context);
+                              },
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 150),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: current == slug
+                                      ? AppColors.primary
+                                      : AppColors.primary.withOpacity(0.08),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: current == slug
+                                        ? AppColors.primary
+                                        : AppColors.primary.withOpacity(0.2),
+                                  ),
+                                ),
+                                child: Text(
+                                  '${catBySlug[slug]!['emoji']} ${catBySlug[slug]!['name']}',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontFamily: 'Nunito',
+                                    color: current == slug
+                                        ? Colors.white
+                                        : AppColors.textDark,
+                                    fontWeight: current == slug
+                                        ? FontWeight.w700
+                                        : FontWeight.normal,
+                                  ),
+                                ),
+                              ),
+                            ),
+                      ],
+                    ),
+                  ],
+                  const SizedBox(height: 24),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
