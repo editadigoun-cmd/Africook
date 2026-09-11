@@ -206,9 +206,10 @@ class HomeScreen extends ConsumerWidget {
                   const SizedBox(height: 24),
 
                   // Popular recipes
-                  const _SectionHeader(
+                  _SectionHeader(
                     title: '🔥 Populaires cette semaine',
                     showMore: true,
+                    onMore: () => context.push('/recipes'),
                   ),
                   const SizedBox(height: 12),
                   popularAsync.when(

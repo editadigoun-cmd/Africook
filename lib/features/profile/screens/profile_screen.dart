@@ -166,7 +166,12 @@ class ProfileScreen extends ConsumerWidget {
                         _MenuItem(
                           icon: Icons.history,
                           label: 'Historique',
-                          onTap: () {},
+                          onTap: () => context.push('/history'),
+                        ),
+                        _MenuItem(
+                          icon: Icons.calendar_month_outlined,
+                          label: 'Planificateur de repas',
+                          onTap: () => context.push('/meal-planner'),
                         ),
                         _MenuItem(
                           icon: Icons.shopping_cart_outlined,
@@ -205,6 +210,11 @@ class ProfileScreen extends ConsumerWidget {
                                   color: AppColors.textLight,
                                   fontFamily: 'Nunito',
                                   fontSize: 12)),
+                        ),
+                        _MenuItem(
+                          icon: Icons.wifi_off,
+                          label: 'Mode hors-ligne',
+                          onTap: () => context.push('/offline'),
                         ),
                       ],
                     ),

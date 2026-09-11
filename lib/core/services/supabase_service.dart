@@ -169,6 +169,43 @@ class SupabaseService {
 
   // ─── SHOPPING LIST ──────────────────────────────────────
 
+  Future<List<RecipeModel>> getHistory(String userId) async {
+    final data = await client
+        .from('recipe_history')
+        .select('*, recipes(*, users!author_id(id, full_name, avatar_url))')
+        .eq('user_id', userId)
+        .order('viewed_at', ascending: false)
+        .limit(30);
+    return data
+        .map((e) => RecipeModel.fromJson(e['recipes'] as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<List<Map<String, dynamic>>> getMealPlan(String userId, DateTime weekStart) async {
+    final end = weekStart.add(const Duration(days: 6));
+    final data = await client
+        .from('meal_plans')
+        .select('*, recipes(id, title, image_url, prep_time_minutes, cook_time_minutes, difficulty, average_rating)')
+        .eq('user_id', userId)
+        .gte('plan_date', weekStart.toIso8601String().substring(0, 10))
+        .lte('plan_date', end.toIso8601String().substring(0, 10))
+        .order('plan_date');
+    return data;
+  }
+
+  Future<void> addMealPlan(String userId, String recipeId, DateTime date, String mealType) async {
+    await client.from('meal_plans').upsert({
+      'user_id': userId,
+      'recipe_id': recipeId,
+      'plan_date': date.toIso8601String().substring(0, 10),
+      'meal_type': mealType,
+    }, onConflict: 'user_id,plan_date,meal_type');
+  }
+
+  Future<void> deleteMealPlan(String id) async {
+    await client.from('meal_plans').delete().eq('id', id);
+  }
+
   Future<List<Map<String, dynamic>>> getShoppingList(String userId) async {
     final data = await client
         .from('shopping_list_items')
@@ -181,10 +218,10 @@ class SupabaseService {
   Future<void> addShoppingItem(Map<String, dynamic> item) =>
       client.from('shopping_list_items').insert(item);
 
-  Future<void> toggleShoppingItem(int id, bool checked) =>
+  Future<void> toggleShoppingItem(String id, bool checked) =>
       client.from('shopping_list_items').update({'is_checked': checked}).eq('id', id);
 
-  Future<void> deleteShoppingItem(int id) =>
+  Future<void> deleteShoppingItem(String id) =>
       client.from('shopping_list_items').delete().eq('id', id);
 
   Future<void> clearCheckedItems(String userId) => client
@@ -297,14 +334,49 @@ class SupabaseService {
 
   Future<void> toggleLike(String userId, String recipeId, bool add) async {
     if (add) {
-      await client.from('likes').insert({'user_id': userId, 'recipe_id': recipeId});
+      await client.from('recipe_likes').insert({'user_id': userId, 'recipe_id': recipeId});
     } else {
       await client
-          .from('likes')
+          .from('recipe_likes')
           .delete()
           .eq('user_id', userId)
           .eq('recipe_id', recipeId);
     }
+  }
+
+  Future<bool> isLiked(String userId, String recipeId) async {
+    final result = await client
+        .from('recipe_likes')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('recipe_id', recipeId)
+        .maybeSingle();
+    return result != null;
+  }
+
+  Future<List<RecipeModel>> getUserRecipes(String userId) async {
+    final data = await client
+        .from('recipes')
+        .select('*, users!author_id(id, full_name, avatar_url)')
+        .eq('author_id', userId)
+        .order('created_at', ascending: false);
+    return data.map(RecipeModel.fromJson).toList();
+  }
+
+  Future<List<RecipeModel>> getFollowedRecipes(String userId) async {
+    final follows = await client
+        .from('follows')
+        .select('following_id')
+        .eq('follower_id', userId);
+    final ids = follows.map((f) => f['following_id'] as String).toList();
+    if (ids.isEmpty) return [];
+    final data = await client
+        .from('recipes')
+        .select('*, users!author_id(id, full_name, avatar_url)')
+        .inFilter('author_id', ids)
+        .order('created_at', ascending: false)
+        .limit(30);
+    return data.map(RecipeModel.fromJson).toList();
   }
 
   Future<void> toggleFollow(
@@ -410,4 +482,68 @@ class SupabaseService {
           .eq('user_id', userId)
           .order('created_at', ascending: false)
           .limit(20);
+
+  Future<Map<String, dynamic>?> getActiveChallenge() async {
+    final rows = await client
+        .from('cooking_challenges')
+        .select()
+        .eq('is_active', true)
+        .order('created_at', ascending: false)
+        .limit(1);
+    if (rows.isEmpty) return null;
+    return rows.first as Map<String, dynamic>;
+  }
+
+  Future<List<Map<String, dynamic>>> getChallengeSubmissions(
+      String challengeId) async {
+    return client
+        .from('challenge_submissions')
+        .select('*, users(full_name, avatar_url)')
+        .eq('challenge_id', challengeId)
+        .order('votes_count', ascending: false);
+  }
+
+  Future<void> submitChallenge({
+    required String challengeId,
+    required String userId,
+    required String imageUrl,
+    String? description,
+  }) =>
+      client.from('challenge_submissions').insert({
+        'challenge_id': challengeId,
+        'user_id': userId,
+        'image_url': imageUrl,
+        'description': description,
+      });
+
+  Future<bool> hasVotedSubmission(
+      String submissionId, String userId) async {
+    final rows = await client
+        .from('challenge_votes')
+        .select('id')
+        .eq('submission_id', submissionId)
+        .eq('user_id', userId)
+        .limit(1);
+    return rows.isNotEmpty;
+  }
+
+  Future<void> voteSubmission(
+      String submissionId, String userId, bool vote) async {
+    if (vote) {
+      await client.from('challenge_votes').insert({
+        'submission_id': submissionId,
+        'user_id': userId,
+      });
+      await client.rpc('increment_challenge_votes',
+          params: {'submission_id': submissionId});
+    } else {
+      await client
+          .from('challenge_votes')
+          .delete()
+          .eq('submission_id', submissionId)
+          .eq('user_id', userId);
+      await client.rpc('decrement_challenge_votes',
+          params: {'submission_id': submissionId});
+    }
+  }
 }

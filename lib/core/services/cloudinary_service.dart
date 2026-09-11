@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:image_picker/image_picker.dart';
@@ -19,6 +20,37 @@ class CloudinaryService {
       });
 
       final response = await _dio.post('$_baseUrl/image/upload', data: formData);
+      return response.data['secure_url'] as String?;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<String?> uploadImageBytes(Uint8List bytes,
+      {required String fileName, String folder = 'recipes'}) async {
+    try {
+      final formData = FormData.fromMap({
+        'file': MultipartFile.fromBytes(bytes, filename: fileName),
+        'upload_preset': _uploadPreset,
+        'folder': folder,
+      });
+      final response = await _dio.post('$_baseUrl/image/upload', data: formData);
+      return response.data['secure_url'] as String?;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<String?> uploadVideoBytes(Uint8List bytes,
+      {required String fileName, String folder = 'recipes/videos'}) async {
+    try {
+      final formData = FormData.fromMap({
+        'file': MultipartFile.fromBytes(bytes, filename: fileName),
+        'upload_preset': _uploadPreset,
+        'folder': folder,
+        'resource_type': 'video',
+      });
+      final response = await _dio.post('$_baseUrl/video/upload', data: formData);
       return response.data['secure_url'] as String?;
     } catch (e) {
       return null;

@@ -10,6 +10,7 @@ import '../../features/recipes/screens/recipes_screen.dart';
 import '../../features/recipes/screens/recipe_detail_screen.dart';
 import '../../features/recipes/screens/recipe_create_screen.dart';
 import '../../features/ai_chef/screens/ai_chef_screen.dart';
+import '../../features/ai_chef/screens/ingredient_scanner_screen.dart';
 import '../../features/orders/screens/orders_screen.dart';
 import '../../features/orders/screens/restaurants_screen.dart';
 import '../../features/orders/screens/restaurant_detail_screen.dart';
@@ -22,8 +23,12 @@ import '../../features/shopping_list/screens/shopping_list_screen.dart';
 import '../../features/notifications/screens/notifications_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
 import '../../features/profile/screens/edit_profile_screen.dart';
+import '../../features/profile/screens/history_screen.dart';
+import '../../features/profile/screens/offline_screen.dart';
+import '../../features/meal_planner/screens/meal_planner_screen.dart';
 import '../../features/boutique/screens/boutique_screen.dart';
 import '../../features/boutique/screens/store_detail_screen.dart';
+import '../../features/challenges/screens/challenge_screen.dart';
 import '../../shared/widgets/main_scaffold.dart';
 import '../services/supabase_service.dart';
 
@@ -78,6 +83,14 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/ai-chef',
             builder: (_, __) => const AiChefScreen(),
+          ),
+          GoRoute(
+            path: '/ingredient-scanner',
+            builder: (_, __) => const IngredientScannerScreen(),
+          ),
+          GoRoute(
+            path: '/challenge',
+            builder: (_, __) => const ChallengeScreen(),
           ),
           GoRoute(
             path: '/orders',
@@ -144,6 +157,18 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/profile/edit',
         builder: (_, __) => const EditProfileScreen(),
+      ),
+      GoRoute(
+        path: '/history',
+        builder: (_, __) => const HistoryScreen(),
+      ),
+      GoRoute(
+        path: '/offline',
+        builder: (_, __) => const OfflineScreen(),
+      ),
+      GoRoute(
+        path: '/meal-planner',
+        builder: (_, __) => const MealPlannerScreen(),
       ),
       GoRoute(
         path: '/boutique',

@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/services/supabase_service.dart';
+import '../../../core/services/recipe_cache_service.dart';
 import '../../../shared/models/recipe_model.dart';
 import '../../../shared/providers/auth_provider.dart';
 import '../../../shared/widgets/health_badge.dart';
 import '../../../shared/widgets/primary_button.dart';
 import '../../../shared/widgets/skeleton_loader.dart';
+import '../widgets/cost_estimator_sheet.dart';
+import 'cooking_mode_screen.dart';
 
 String _difficultyLabel(String? v) {
   switch (v) {
@@ -20,8 +24,15 @@ String _difficultyLabel(String? v) {
 }
 
 final recipeDetailProvider =
-    FutureProvider.family<RecipeModel?, String>((ref, id) {
-  return ref.read(supabaseServiceProvider).getRecipe(id);
+    FutureProvider.family<RecipeModel?, String>((ref, id) async {
+  final cache = RecipeCacheService();
+  try {
+    final recipe = await ref.read(supabaseServiceProvider).getRecipe(id);
+    if (recipe != null) await cache.saveRecipe(recipe);
+    return recipe;
+  } catch (_) {
+    return cache.getRecipe(id);
+  }
 });
 
 class RecipeDetailScreen extends ConsumerStatefulWidget {
@@ -43,6 +54,31 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+    _recordHistory();
+  }
+
+  Future<void> _recordHistory() async {
+    final uid = SupabaseService.currentUserId;
+    if (uid == null) return;
+    try {
+      await SupabaseService.client.from('recipe_history').upsert({
+        'user_id': uid,
+        'recipe_id': widget.recipeId,
+        'viewed_at': DateTime.now().toIso8601String(),
+      }, onConflict: 'user_id,recipe_id');
+    } catch (_) {}
+  }
+
+  void _shareRecipe(RecipeModel recipe) {
+    final url = 'https://editadigoun-cmd.github.io/Africook/#/recipe/${recipe.id}';
+    Clipboard.setData(ClipboardData(text: url));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Lien copié dans le presse-papier !'),
+        backgroundColor: AppColors.primary,
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   @override
@@ -73,7 +109,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
       await service.addShoppingItem({
         'user_id': uid,
         'recipe_id': recipe.id,
-        'ingredient_name': ing.name,
+        'name': ing.name,
         'quantity': ing.quantity,
         'unit': ing.unit,
       });
@@ -134,7 +170,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
                   ),
                   IconButton(
                     icon: const Icon(Icons.share_outlined, color: Colors.white),
-                    onPressed: () {},
+                    onPressed: () => _shareRecipe(recipe),
                   ),
                 ],
                 flexibleSpace: FlexibleSpaceBar(
@@ -283,7 +319,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
                         onAddToList: () => _addToShoppingList(recipe),
                       ),
                       // Steps tab
-                      _StepsTab(steps: recipe.steps),
+                      _StepsTab(steps: recipe.steps, recipe: recipe),
                       // Video tab
                       _VideoTab(videoUrl: recipe.videoUrl),
                       // Nutrition tab
@@ -460,6 +496,16 @@ class _IngredientsTab extends StatelessWidget {
           label: const Text('Ajouter à ma liste de courses'),
           onPressed: onAddToList,
         ),
+        const SizedBox(height: 10),
+        OutlinedButton.icon(
+          icon: const Icon(Icons.attach_money),
+          label: const Text('Estimer le coût en XOF'),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.primary,
+            side: const BorderSide(color: AppColors.primary),
+          ),
+          onPressed: () => showCostEstimator(context, recipe),
+        ),
       ],
     );
   }
@@ -520,73 +566,117 @@ class _CounterBtn extends StatelessWidget {
 
 class _StepsTab extends StatelessWidget {
   final List<RecipeStep> steps;
+  final RecipeModel recipe;
 
-  const _StepsTab({required this.steps});
+  const _StepsTab({required this.steps, required this.recipe});
 
   @override
   Widget build(BuildContext context) {
     if (steps.isEmpty) {
       return const Center(child: Text('Aucune étape disponible'));
     }
-    return ListView.separated(
-      padding: const EdgeInsets.all(16),
-      itemCount: steps.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 16),
-      itemBuilder: (_, i) {
-        final step = steps[i];
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: const BoxDecoration(
-                color: AppColors.primary,
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Text(
-                  '${step.stepNumber}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w700,
-                    fontSize: 14,
-                  ),
-                ),
+    return Column(
+      children: [
+        // Mode cuisine button
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+          child: GestureDetector(
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                fullscreenDialog: true,
+                builder: (_) => CookingModeScreen(recipe: recipe),
               ),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF1A1A2E), Color(0xFF374151)],
+                ),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  if (step.durationMinutes != null)
-                    Text(
-                      '${step.durationMinutes} min',
-                      style: const TextStyle(
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w600,
-                        fontSize: 11,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  const SizedBox(height: 2),
+                  Icon(Icons.local_dining, color: Colors.white, size: 18),
+                  SizedBox(width: 8),
                   Text(
-                    step.instruction,
-                    style: const TextStyle(
-                      fontFamily: 'Nunito',
-                      fontSize: 14,
-                      color: AppColors.textDark,
-                      height: 1.5,
+                    'Mode cuisine — plein écran',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                      color: Colors.white,
                     ),
                   ),
                 ],
               ),
             ),
-          ],
-        );
-      },
+          ),
+        ),
+        Expanded(
+          child: ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemCount: steps.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 16),
+            itemBuilder: (_, i) {
+              final step = steps[i];
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: const BoxDecoration(
+                      color: AppColors.primary,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        '${step.stepNumber}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (step.durationMinutes != null)
+                          Text(
+                            '${step.durationMinutes} min',
+                            style: const TextStyle(
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w600,
+                              fontSize: 11,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        const SizedBox(height: 2),
+                        Text(
+                          step.instruction,
+                          style: const TextStyle(
+                            fontFamily: 'Nunito',
+                            fontSize: 14,
+                            color: AppColors.textDark,
+                            height: 1.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }

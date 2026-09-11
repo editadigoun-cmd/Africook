@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -207,4 +208,35 @@ Réponds en JSON avec exactement ces champs :
   "tips": "Conseil du chef"
 }
 ''';
+
+  Future<List<String>> detectIngredientsFromImage(Uint8List imageBytes) async {
+    final base64Image = base64Encode(imageBytes);
+    final response = await _dio.post('/chat/completions', data: {
+      'model': 'gpt-4o',
+      'messages': [
+        {
+          'role': 'user',
+          'content': [
+            {
+              'type': 'text',
+              'text':
+                  'Analyse cette image et liste tous les ingrédients alimentaires visibles. Réponds uniquement avec un JSON valide: {"ingredients": ["ingrédient1", "ingrédient2", ...]}. Si tu ne vois pas de nourriture, retourne {"ingredients": []}.',
+            },
+            {
+              'type': 'image_url',
+              'image_url': {'url': 'data:image/jpeg;base64,$base64Image', 'detail': 'low'},
+            },
+          ],
+        }
+      ],
+      'response_format': {'type': 'json_object'},
+      'max_tokens': 500,
+    });
+
+    final content = response.data['choices'][0]['message']['content'] as String;
+    final decoded = jsonDecode(content) as Map<String, dynamic>;
+    final list = decoded['ingredients'];
+    if (list is List) return list.map((e) => e as String).toList();
+    return [];
+  }
 }

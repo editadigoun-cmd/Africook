@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/services/supabase_service.dart';
 import '../../../shared/providers/auth_provider.dart';
@@ -85,6 +86,15 @@ class NotificationsScreen extends ConsumerWidget {
                   final type = n['type'] as String? ?? '';
 
                   return ListTile(
+                    onTap: () {
+                      final recipeId = n['recipe_id'] as String?;
+                      final conversationId = n['conversation_id'] as String?;
+                      if (type == 'new_message' && conversationId != null) {
+                        context.push('/messages/$conversationId');
+                      } else if (recipeId != null) {
+                        context.push('/recipe/$recipeId');
+                      }
+                    },
                     leading: Container(
                       width: 44,
                       height: 44,
